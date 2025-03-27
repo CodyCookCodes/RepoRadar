@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Activity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <meta http-equiv="refresh" content="30">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Repo list (grid layout) */
+        #repo-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;  /* Two columns by default */
+            gap: 1rem;
+        }
+
+        /* Container for each repo card */
+        .repo-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .repo-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 0.5em;
+        }
+
+        .repo-card ul {
+            list-style: none;
+            padding-left: 1.5rem;
+        }
+
+        .repo-card li {
+            margin-bottom: 0.5em;
+        }
+
+        .repo-card a {
+            color: inherit; /* Remove hyperlink blue color */
+            text-decoration: none; /* Remove underline */
+        }
+
+        .repo-card a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        .repo-card .commit-main {
+            color: red;
+            font-weight: bold;
+        }
+
+        .repo-card .commit-other {
+            color: black;
+            font-weight: normal;
+        }
+
+        /* Single-repo view: full-width */
+        #repo-list.single-view {
+            grid-template-columns: 1fr;  /* One column for single repo view */
+            font-size: 1.2em;
+        }
+
+        /* Responsive: Stack cards into a single column for mobile */
+        @media (max-width: 768px) {
+            #repo-list {
+                grid-template-columns: 1fr;  /* Single column on small screens */
+            }
+        }
+
+        /* Filter Dropdown Styles */
+        #repo-filter-container {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        #repo-filter-label {
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #007bff;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        #repo-filter-select {
+            display: none;
+            width: 50%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 0.5rem;
+            background-color: #f7f7f7;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .filter-option {
+            padding: 10px;
+            border: none;
+            background-color: #f7f7f7;
+            cursor: pointer;
+        }
+
+        .filter-option:hover {
+            background-color: #e1e1e1;
+        }
+
+    </style>
+</head>
+<body class="container mt-4">
+    <h1>GitHub Repo Activity</h1>
+
+    <!-- Filter Section with Dropdown -->
+    <div id="repo-filter-container">
+        <label id="repo-filter-label" for="repo-filter-select">Filter Repositories</label>
+        <select id="repo-filter-select" class="form-select" name="repo_filter" multiple size="6" onchange="this.form.submit()">
+            {% for repo in repos %}
+                <option value="{{ repo }}" {% if repo in request.args.getlist('repo_filter') %}selected{% endif %}>
+                    {{ '/' + repo.split('/')[1] }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Repo Cards Section -->
+    <div id="repo-list" class="multi-view">
+        {% for repo in repo_data %}
+            <div class="repo-card">
+                <h3>{{ '/' + repo.name.split('/')[1] }}</h3> <!-- Show repo name after the slash -->
+
+                <h5>Open Pull Requests:</h5>
+                {% if repo.prs %}
+                    <ul>
+                        {% for pr in repo.prs %}
+                            <li><a href="{{ pr.url }}" target="_blank">{{ pr.title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No open PRs.</p>
+                {% endif %}
+
+                <h5>Recent Commits to `main`:</h5>
+                {% if repo.commits_main %}
+                    <ul>
+                        {% for commit in repo.commits_main %}
+                            <li>
+                                <strong class="commit-main">
+                                    <a href="https://github.com/{{ repo.name }}/commit/{{ commit.hash }}" target="_blank">
+                                        {{ commit.hash }}
+                                    </a>
+                                </strong> - {{ commit.message }} ({{ commit.author }}) - <em>{{ commit.date }}</em>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No recent commits to `main`.</p>
+                {% endif %}
+
+                <h5>Recent Commits to Repo (All Branches):</h5>
+                {% if repo.commits_all %}
+                    <ul>
+                        {% for commit in repo.commits_all %}
+                            <li>
+                                <strong class="{% if commit.is_main %}commit-main{% else %}commit-other{% endif %}">
+                                    <a href="https://github.com/{{ repo.name }}/commit/{{ commit.hash }}" target="_blank">
+                                        {{ commit.hash }}
+                                    </a>
+                                </strong> - {{ commit.message }} ({{ commit.author }}) - <em>{{ commit.date }}</em>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No recent commits to this repo.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // JavaScript to toggle dropdown visibility
+        document.getElementById("repo-filter-label").addEventListener("click", function() {
+            var filter = document.getElementById("repo-filter-select");
+            if (filter.style.display === "none" || filter.style.display === "") {
+                filter.style.display = "block";
+            } else {
+                filter.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

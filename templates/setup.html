@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup GitHub Token</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+    <h2>🚀 Welcome to Repo Radar</h2>
+    <p>To get started, you need a <strong>GitHub Personal Access Token</strong>.</p>
+
+    <h4>How to get your GitHub token:</h4>
+    <ol>
+        <li>Go to <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">GitHub Fine-Grained Token Generator</a>.</li>
+        <li>Select the necessary scopes (e.g., `repo` for repository access).</li>
+        <li>Set an expiration for the token, if desired (for security purposes, consider setting an expiration date).</li>
+        <li>Click <strong>Generate token</strong>, then copy the token.</li>
+        <li>Paste it in the box below.</li>
+    </ol>
+
+    <form method="POST">
+        <label for="github_token" class="form-label">Paste your GitHub token:</label>
+        <input type="text" class="form-control" id="github_token" name="github_token" required>
+        <button type="submit" class="btn btn-primary mt-3">Save & Continue</button>
+    </form>
+</body>
+</html>
